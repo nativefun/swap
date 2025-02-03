@@ -1,55 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Initial developer: [@nonomnouns](https://github.com/nonomnouns)
+Built as response to [bounty opened by Derek](https://www.bountycaster.xyz/bounty/0x029f96d23f7f41d1763de356fd1f68bc3a634b7f)
 
 ## Features
 
 ### 🔄 Token Swapping
+
 - Swap ETH to NATIVE tokens on Base chain
 - Real-time price updates
 - Transaction status tracking
 - Affiliate fee integration
 
 ### 📢 Notifications & Announcements
+
 The frame supports various types of notifications following the [Farcaster Frames v2 Specification](https://docs.farcaster.xyz/developers/frames/v2/spec):
 
 #### Notification Events in route.ts
+
 The notifications handler supports these webhook events:
 
 1. **frame_added**: When user adds the frame
+
 ```typescript
 type EventFrameAddedPayload = {
-  event: 'frame_added';
-  notificationDetails?: {
-    url: string;    // Notification endpoint URL
-    token: string;  // Auth token for sending notifications
-  };
+    event: "frame_added";
+    notificationDetails?: {
+        url: string; // Notification endpoint URL
+        token: string; // Auth token for sending notifications
+    };
 };
 ```
 
 2. **frame_removed**: When user removes the frame
+
 ```typescript
 {
-  event: 'frame_removed'
+    event: "frame_removed";
 }
 ```
 
 3. **notifications_enabled/disabled**: When user toggles notifications
+
 ```typescript
 type EventNotificationsEnabledPayload = {
-  event: 'notifications_enabled';
-  notificationDetails: {
-    url: string;
-    token: string;
-  };
+    event: "notifications_enabled";
+    notificationDetails: {
+        url: string;
+        token: string;
+    };
 };
 ```
 
 #### Rate Limiting
+
 When sending notifications, the server will respond with:
+
 - `successTokens`: Successfully sent notifications
 - `invalidTokens`: Tokens that should not be used again
 - `rateLimitedTokens`: Tokens that exceeded rate limit
 
 To bypass rate limits for important notifications, use:
+
 ```bash
 curl -X POST '[YOUR_APP_URL]/api/announcements' \
 -H "Content-Type: application/json" \
@@ -60,9 +70,11 @@ curl -X POST '[YOUR_APP_URL]/api/announcements' \
 ```
 
 #### Managing Announcements
+
 You can manage announcements using the API endpoints:
 
 1. Create a new announcement (POST to Supabase):
+
 ```bash
 curl -X POST '[SUPABASE_URL]/rest/v1/announcements' \
 -H "apikey: [YOUR_KEY]" \
@@ -76,6 +88,7 @@ curl -X POST '[SUPABASE_URL]/rest/v1/announcements' \
 ```
 
 2. Send notifications to users:
+
 ```bash
 curl -X POST '[YOUR_APP_URL]/api/announcements' \
 -H "Content-Type: application/json" \
@@ -86,15 +99,18 @@ curl -X POST '[YOUR_APP_URL]/api/announcements' \
 ```
 
 3. Get all announcements:
+
 ```bash
 curl -X GET '[YOUR_APP_URL]/api/announcements' \
 -H "Content-Type: application/json"
 ```
 
 #### Python Script Examples
+
 You can also use Python to manage notifications and announcements:
 
 1. **Setup and Configuration**
+
 ```python
 import requests
 import json
@@ -105,7 +121,7 @@ class FarcasterNotifications:
         self.supabase_url = "YOUR_SUPABASE_URL"
         self.supabase_key = "YOUR_SUPABASE_KEY"
         self.app_url = "YOUR_APP_URL"
-        
+
         self.headers = {
             "apikey": self.supabase_key,
             "Authorization": f"Bearer {self.supabase_key}",
@@ -114,6 +130,7 @@ class FarcasterNotifications:
 ```
 
 2. **Create and Send Announcements**
+
 ```python
 def create_announcement(self, title: str, text: str) -> dict:
     """Create a new announcement in Supabase"""
@@ -122,7 +139,7 @@ def create_announcement(self, title: str, text: str) -> dict:
         "text": text,
         "created_at": datetime.utcnow().isoformat()
     }
-    
+
     response = requests.post(
         f"{self.supabase_url}/rest/v1/announcements",
         headers=self.headers,
@@ -137,9 +154,9 @@ def send_notification(self, fid: int, skip_rate_limit: bool = False) -> dict:
     }
     if skip_rate_limit:
         headers["X-Skip-Rate-Limit"] = "true"
-        
+
     data = {"fid": fid}
-    
+
     response = requests.post(
         f"{self.app_url}/api/announcements",
         headers=headers,
@@ -149,6 +166,7 @@ def send_notification(self, fid: int, skip_rate_limit: bool = False) -> dict:
 ```
 
 3. **Bulk Operations Example**
+
 ```python
 def send_bulk_notifications(self, fids: list[int]) -> dict:
     """Send notifications to multiple users"""
@@ -157,7 +175,7 @@ def send_bulk_notifications(self, fids: list[int]) -> dict:
         "failed": [],
         "rate_limited": []
     }
-    
+
     for fid in fids:
         try:
             response = self.send_notification(fid, skip_rate_limit=True)
@@ -169,11 +187,12 @@ def send_bulk_notifications(self, fids: list[int]) -> dict:
                 results["failed"].append(fid)
         except Exception as e:
             results["failed"].append(fid)
-            
+
     return results
 ```
 
 4. **Usage Example**
+
 ```python
 # Initialize the client
 client = FarcasterNotifications()
@@ -214,6 +233,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Environment Variables
 
 Create a `.env` file with the following variables:
+
 ```env
 NEXT_PUBLIC_URL=your_app_url
 UPSTASH_REDIS_REST_URL=your_redis_url
@@ -230,6 +250,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
 ### Supabase Tables
 
 1. **notification_tokens**
+
 ```sql
 create table notification_tokens (
   id bigint generated by default as identity primary key,
@@ -243,6 +264,7 @@ create unique index notification_tokens_fid_token_key on notification_tokens(fid
 ```
 
 2. **announcements**
+
 ```sql
 create table announcements (
   id bigint generated by default as identity primary key,
@@ -253,6 +275,7 @@ create table announcements (
 ```
 
 ## Tech Stack
+
 - Next.js 14 with App Router
 - Supabase for data storage
 - Upstash Redis for caching
