@@ -1,5 +1,13 @@
-Initial developer: [@nonomnouns](https://github.com/nonomnouns)
-Built as response to [bounty opened by Derek](https://www.bountycaster.xyz/bounty/0x029f96d23f7f41d1763de356fd1f68bc3a634b7f)
+## Introduction
+
+This frame enables swaps and announcements.
+It is built and customized for $NATIVE, but feel free to fork and use for your own projects (MIT-license).
+For swaps, the fee is currently set to 25, split between Native and @nonomnouns with a 1% sponsorship fee to Splits.
+
+## Credits
+
+Initial developer: [@nonomnouns](https://github.com/nonomnouns).
+Built as response to [bounty opened by Derek](https://www.bountycaster.xyz/bounty/0x029f96d23f7f41d1763de356fd1f68bc3a634b7f) and inspired by Dan Romero's original cast [here](https://warpcast.com/dwr.eth/0x7758a71c).
 
 ## Features
 
@@ -230,7 +238,19 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Environment Variables
+## Dependencies
+
+### Summary
+
+- Next.js 14 with App Router
+- Supabase for data storage
+- Upstash Redis for caching
+- Farcaster Frame SDK
+- 0x Protocol for swaps
+- Moralis for token data
+- Neynar for Farcaster data
+
+### Environment Variables
 
 Create a `.env` file with the following variables:
 
@@ -273,15 +293,6 @@ create table announcements (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 ```
-
-## Tech Stack
-
-- Next.js 14 with App Router
-- Supabase for data storage
-- Upstash Redis for caching
-- Farcaster Frame SDK
-- 0x Protocol for swaps
-- Moralis for token data
 
 ## Learn More
 
