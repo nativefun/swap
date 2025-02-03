@@ -118,7 +118,8 @@ curl -X GET '[YOUR_APP_URL]/api/announcements' \
 You can use this Python script to manage notifications and announcements:
 
 <<<<<<< HEAD
-```python
+
+`````python
 =======
 ````python
 >>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
@@ -139,7 +140,7 @@ def get_all_fids():
         "Content-Type": "application/json"
     }
 <<<<<<< HEAD
-    
+
 =======
 
 >>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
@@ -148,7 +149,7 @@ def get_all_fids():
         headers=headers
     )
 <<<<<<< HEAD
-    
+
 =======
 
 >>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
@@ -178,18 +179,18 @@ def send_announcement_to_user(fid):
         "Content-Type": "application/json",
         "X-Skip-Rate-Limit": "true"
     }
-    
+
     data = {
         "fid": fid
     }
-    
+
     response = requests.post(
         f"{APP_URL}/api/announcements",
         headers=headers,
         json=data
     )
 <<<<<<< HEAD
-    
+
     return response.status_code == 200
 
 =======
@@ -205,27 +206,27 @@ def create_announcement(title, text):
         "Content-Type": "application/json",
         "Prefer": "return=minimal"
     }
-    
+
     data = {
         "title": title,
         "text": text,
         "created_at": time.strftime('%Y-%m-%dT%H:%M:%SZ')
     }
-    
+
     response = requests.post(
         f"{SUPABASE_URL}/rest/v1/announcements",
         headers=headers,
         json=data
     )
-    
+
     return response.status_code == 201
 
 <<<<<<< HEAD
 def main():
     # 1. Create a new announcement
     announcement_title = "🎉 New Features Released!"
-    announcement_text = "We've just released exciting new features for NativeSwap. Check them out!"
-    
+    announcement_text = "We've just released exciting new features for Native Swap. Check them out!"
+
     print("Creating new announcement...")
     if create_announcement(announcement_title, announcement_text):
         print("Announcement created successfully!")
@@ -245,14 +246,14 @@ def main():
     print("\nSending notifications to users...")
     for i, fid in enumerate(fids, 1):
         print(f"Processing {i}/{len(fids)}: FID {fid}", end=" ")
-        
+
         if send_announcement_to_user(fid):
             print("✅")
             success_count += 1
         else:
             print("❌")
             fail_count += 1
-        
+
         # Small delay between requests
         time.sleep(0.5)
 
@@ -334,7 +335,7 @@ yarn dev
 pnpm dev
 # or
 bun dev
-````
+`````
 
 For local development and testing with Farcaster Frames, you'll need to expose your local server using ngrok:
 
@@ -355,6 +356,7 @@ brew install ngrok
 For local development and testing with Farcaster Frames, you'll need to expose your local server using ngrok:
 
 1. Install ngrok:
+
 ```bash
 # Using npm
 npm install ngrok -g
@@ -366,20 +368,21 @@ choco install ngrok
 brew install ngrok
 ```
 
-2. Start your local server (default port 3000):
-=======
-2. Start your local server (default port 3000):
+2. # Start your local server (default port 3000):
+3. Start your local server (default port 3000):
 
->>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+> > > > > > > 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+
 ```bash
 npm run dev
 ```
 
 3. In a new terminal, start ngrok:
-<<<<<<< HEAD
-=======
+   <<<<<<< HEAD
+   =======
 
->>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+> > > > > > > 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+
 ```bash
 ngrok http 3000
 ```
@@ -387,19 +390,21 @@ ngrok http 3000
 4. Copy the HTTPS URL provided by ngrok (e.g., `https://your-ngrok-url.ngrok.io`)
 
 5. Update your environment variables:
-<<<<<<< HEAD
-=======
+   <<<<<<< HEAD
+   =======
 
->>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+> > > > > > > 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+
 ```env
 NEXT_PUBLIC_URL=https://your-ngrok-url.ngrok.io
 ```
 
 6. Test your Frame:
-<<<<<<< HEAD
-=======
+   <<<<<<< HEAD
+   =======
 
->>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+> > > > > > > 34c2f6354692aa38432b1a0eb2c7f522a4fce419
+
 - Go to [Warpcast Frame Development](https://warpcast.com/~/developers/frames)
 - Paste your ngrok URL into the frame URL field
 - Click "Test frame" to preview and debug your frame
@@ -465,12 +470,13 @@ create table notification_tokens (
 );
 
 -- Optional: Add some test data
-insert into announcements (title, text) values 
-('🎉 Welcome to NativeSwap!', 'We are excited to launch our new swap platform.'),
+insert into announcements (title, text) values
+('🎉 Welcome to Native Swap!', 'We are excited to launch our new swap platform.'),
 ('📢 New Features', 'Check out our latest updates and improvements.');
 ```
 
 This setup creates:
+
 1. `announcements` table for storing platform announcements
 2. `notification_tokens` table for managing user notification preferences
 3. Sample announcement data

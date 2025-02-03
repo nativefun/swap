@@ -18,7 +18,8 @@ import {
   useBalance,
 } from "wagmi";
 import { parseUnits, formatUnits, type BaseError } from "viem";
-import { Loader2, ArrowDownUp } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { RiSwapBoxLine } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -72,10 +73,13 @@ interface SwapProps {
   setTransactionState: (state: string) => void;
 }
 
-const formatBalance = (value: string | undefined, decimals: number = 3): string => {
+const formatBalance = (
+  value: string | undefined,
+  decimals: number = 3,
+): string => {
   if (!value) return "0.0";
   const num = Number(value);
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: decimals,
   }).format(num);
@@ -105,7 +109,10 @@ export default function Swap({ setTransactionState }: SwapProps) {
   const [fetchPriceError, setFetchPriceError] = useState<string[]>([]);
   const { address, isConnected } = useAccount();
   const { data: ethBalance } = useBalance({ address });
-  const { balance: nativeBalance } = useTokenBalance(address, NATIVE_TOKEN.address);
+  const { balance: nativeBalance } = useTokenBalance(
+    address,
+    NATIVE_TOKEN.address,
+  );
   const parsedSellAmount = sellAmount
     ? parseUnits(sellAmount, sellToken.decimals).toString()
     : undefined;
@@ -200,16 +207,21 @@ export default function Swap({ setTransactionState }: SwapProps) {
     setFetchPriceError([]);
   }, [isSelling]);
 
-  const handlePercentageClick = useCallback((percentage: number) => {
-    const balance = isSelling 
-      ? nativeBalance?.balance_formatted 
-      : ethBalance?.value ? formatUnits(ethBalance.value, 18) : "0";
-    
-    if (balance) {
-      const amount = (Number(balance) * percentage).toFixed(6);
-      setSellAmount(amount);
-    }
-  }, [isSelling, nativeBalance, ethBalance]);
+  const handlePercentageClick = useCallback(
+    (percentage: number) => {
+      const balance = isSelling
+        ? nativeBalance?.balance_formatted
+        : ethBalance?.value
+          ? formatUnits(ethBalance.value, 18)
+          : "0";
+
+      if (balance) {
+        const amount = (Number(balance) * percentage).toFixed(6);
+        setSellAmount(amount);
+      }
+    },
+    [isSelling, nativeBalance, ethBalance],
+  );
 
   useEffect(() => {
     if (isConfirmed) {
@@ -291,7 +303,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
   if (!isSDKLoaded) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
     );
   }
@@ -302,17 +314,21 @@ export default function Swap({ setTransactionState }: SwapProps) {
         <CardContent className="p-6 space-y-4">
           {/* Input Token */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between text-sm font-medium text-stone-700">
               <span>You pay</span>
               <span>
                 Balance:{" "}
                 {isSelling
                   ? formatBalance(nativeBalance?.balance_formatted)
-                  : formatBalance(ethBalance?.value ? formatUnits(ethBalance.value, 18) : "0")}{" "}
+                  : formatBalance(
+                      ethBalance?.value
+                        ? formatUnits(ethBalance.value, 18)
+                        : "0",
+                    )}{" "}
                 {sellToken.symbol}
               </span>
             </div>
-            <div className="flex items-center space-x-2 p-4 bg-gray-50 rounded-xl">
+            <div className="flex items-center space-x-2 p-4 bg-stone-50 rounded-xl">
               <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border">
                 <img
                   src={sellToken.image}
@@ -354,21 +370,22 @@ export default function Swap({ setTransactionState }: SwapProps) {
               variant="ghost"
               size="icon"
               onClick={handleSwapTokens}
-              className="bg-white shadow-md rounded-full h-8 w-8 z-10"
+              className="bg-white shadow-md rounded-full h-8 w-8 z-10 transition-all duration-200 hover:bg-emerald-600 hover:text-white font-bold active:duration-500 active:rotate-180"
             >
-              <ArrowDownUp className="h-4 w-4" />
+              <RiSwapBoxLine className="h-6 w-6" />
             </Button>
           </div>
 
           {/* Output Token */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between text-sm font-medium text-stone-700">
               <span>You receive</span>
               <span>
-                1 {sellToken.symbol} ≈ {formatBalance(buyAmount)} {buyToken.symbol}
+                1 {sellToken.symbol} ≈ {formatBalance(buyAmount)}{" "}
+                {buyToken.symbol}
               </span>
             </div>
-            <div className="flex items-center space-x-2 p-4 bg-gray-50 rounded-xl">
+            <div className="flex items-center space-x-2 p-4 bg-stone-50 rounded-xl">
               <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border">
                 <img
                   src={buyToken.image}
@@ -413,7 +430,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
               isPending ||
               isConfirming
             }
-            className="w-full py-6 text-lg font-semibold"
+            className="bg-emerald-600 hover:bg-stone-50 hover:text-emerald-950 w-full py-6 text-lg font-semibold"
           >
             {!isConnected ? (
               "Connect Wallet"
@@ -430,9 +447,12 @@ export default function Swap({ setTransactionState }: SwapProps) {
           </Button>
 
           {quote && (
-            <div className="text-sm text-gray-500 text-center">
+            <div className="text-sm text-stone-500 text-center">
               Minimum received:{" "}
-              {formatBalance(formatUnits(BigInt(quote.minBuyAmount), buyToken.decimals))} {buyToken.symbol}
+              {formatBalance(
+                formatUnits(BigInt(quote.minBuyAmount), buyToken.decimals),
+              )}{" "}
+              {buyToken.symbol}
             </div>
           )}
         </CardContent>

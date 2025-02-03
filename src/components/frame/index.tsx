@@ -7,17 +7,19 @@
  * - Notification handling for frame events
  * - Safe area insets for different devices
  */
-"use client"
+"use client";
 
-import { useEffect, useState, createContext } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, ArrowDownUp, Check, AlertTriangle, Loader2 } from "lucide-react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { motion, AnimatePresence } from "framer-motion"
-import sdk from "@farcaster/frame-sdk"
-import UserTab from "./user"
-import SwapTab from "./swap"
+import { useEffect, useState, createContext } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { FaHome } from "react-icons/fa";
+import { RiSwapBoxLine } from "react-icons/ri";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import sdk from "@farcaster/frame-sdk";
+import UserTab from "./user";
+import SwapTab from "./swap";
 
 /**
  * Type definition for Farcaster Frame context
@@ -31,7 +33,7 @@ type FrameContext = {
     pfpUrl?: string;
   };
   location?: {
-    type: 'cast_embed' | 'notification' | 'launcher' | 'channel';
+    type: "cast_embed" | "notification" | "launcher" | "channel";
     cast?: {
       fid: number;
       hash: string;
@@ -61,14 +63,14 @@ type FrameContext = {
       token: string;
     };
   };
-}
+};
 
 // Add Tab Control Context
 type TabContextType = {
   setActiveTab: (tab: string) => void;
-}
+};
 
-export const TabContext = createContext<TabContextType | null>(null)
+export const TabContext = createContext<TabContextType | null>(null);
 
 const LoadingSpinner = () => (
   <div className="flex flex-col items-center justify-center min-h-screen gap-4">
@@ -81,16 +83,16 @@ const LoadingSpinner = () => (
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="text-gray-500 font-medium"
+      className="text-stone-500 font-medium"
     >
-      Loading NativeSwap...
+      Loading Native Swap...
     </motion.p>
   </div>
 );
 
 /**
  * Frame Component
- * Main container for the NativeSwap frame interface
+ * Main container for the Native Swap frame interface
  * Features:
  * - Tabbed navigation between User and Swap views
  * - Transaction status dialogs
@@ -100,87 +102,97 @@ const LoadingSpinner = () => (
  * @returns {JSX.Element} The frame interface
  */
 export default function Frame() {
-  const [isSDKReady, setIsSDKReady] = useState(false)
-  const [context, setContext] = useState<FrameContext | null>(null)
-  const [transactionState, setTransactionState] = useState("idle") // idle, loading, success, error
-  const [activeTab, setActiveTab] = useState("user")
+  const [isSDKReady, setIsSDKReady] = useState(false);
+  const [context, setContext] = useState<FrameContext | null>(null);
+  const [transactionState, setTransactionState] = useState("idle"); // idle, loading, success, error
+  const [activeTab, setActiveTab] = useState("user");
 
   useEffect(() => {
     const initializeSDK = async () => {
-      await sdk.actions.ready()
-      const frameContext = await sdk.context
-      setContext(frameContext)
-      setIsSDKReady(true)
+      await sdk.actions.ready();
+      const frameContext = await sdk.context;
+      setContext(frameContext);
+      setIsSDKReady(true);
 
       // Check for new announcements
       if (frameContext.user?.fid) {
         try {
-          await fetch('/api/announcements', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fid: frameContext.user.fid })
-          })
+          await fetch("/api/announcements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fid: frameContext.user.fid }),
+          });
         } catch (error) {
-          console.error('Failed to check announcements:', error)
+          console.error("Failed to check announcements:", error);
         }
       }
-    }
-    initializeSDK()
+    };
+    initializeSDK();
 
     // Listen for frame events
-    sdk.on('frameAdded', async ({ notificationDetails }) => {
+    sdk.on("frameAdded", async ({ notificationDetails }) => {
       if (notificationDetails && context?.user?.fid) {
         // Send welcome notification without rate limit
         try {
-          await fetch('/api/notifications', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'X-Skip-Rate-Limit': 'true'  // Special header to skip rate limit
+          await fetch("/api/notifications", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Skip-Rate-Limit": "true", // Special header to skip rate limit
             },
             body: JSON.stringify({
               fid: context.user.fid,
               notificationId: `welcome:${context.user.fid}:${Date.now()}`, // Unique ID per welcome
-              title: 'Welcome to NativeSwap! 👋',
-              body: 'Thanks for adding NativeSwap. You will receive notifications for successful swaps and announcements.',
-              priority: 'high'  // Mark as high priority notification
-            })
-          })
+              title: "Welcome to Native Swap! 👋",
+              body: "Thanks for adding Native Swap. You will receive notifications for successful swaps and announcements.",
+              priority: "high", // Mark as high priority notification
+            }),
+          });
         } catch (error) {
-          console.error('Failed to send welcome notification:', error)
+          console.error("Failed to send welcome notification:", error);
         }
       }
-    })
+    });
 
     return () => {
-      sdk.removeAllListeners()
-    }
-  }, [context?.user?.fid])
+      sdk.removeAllListeners();
+    };
+  }, [context?.user?.fid]);
 
   const resetTransaction = () => {
-    setTransactionState("idle")
-  }
+    setTransactionState("idle");
+  };
 
   if (!isSDKReady) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-stone-500" />
       </div>
-    )
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <TabContext.Provider value={{ setActiveTab: (tab: string) => {
-        setActiveTab(tab)
-        const tabsElement = document.querySelector(`[data-value="${tab}"]`) as HTMLElement
-        if (tabsElement) {
-          tabsElement.click()
-        }
-      }}}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-          <div 
-            className="flex-1" 
+    <div className="min-h-screen bg-gradient-to-b from-stone-200 to-stone-300">
+      <TabContext.Provider
+        value={{
+          setActiveTab: (tab: string) => {
+            setActiveTab(tab);
+            const tabsElement = document.querySelector(
+              `[data-value="${tab}"]`,
+            ) as HTMLElement;
+            if (tabsElement) {
+              tabsElement.click();
+            }
+          },
+        }}
+      >
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="h-full flex flex-col"
+        >
+          <div
+            className="flex-1"
             style={{
               paddingTop: `${context?.client?.safeAreaInsets?.top || 16}px`,
               paddingLeft: `${context?.client?.safeAreaInsets?.left || 16}px`,
@@ -213,31 +225,34 @@ export default function Frame() {
           </div>
 
           {/* Bottom Navigation */}
-          <TabsList 
+          <TabsList
             className="fixed bottom-0 left-0 right-0 h-14 grid grid-cols-2 gap-4 bg-white border-t shadow-lg max-w-2xl mx-auto z-50"
             style={{
               paddingBottom: context?.client?.safeAreaInsets?.bottom || 0,
               marginBottom: 0,
             }}
           >
-            <TabsTrigger 
-              value="user" 
-              className="flex items-center justify-center data-[state=active]:bg-gray-100 rounded-lg transition-colors"
+            <TabsTrigger
+              value="user"
+              className="flex items-center justify-center data-[state=active]:bg-stone-100 rounded-lg transition-colors"
             >
-              <User className="w-6 h-6" />
+              <FaHome className="w-6 h-6" />
             </TabsTrigger>
-            <TabsTrigger 
-              value="swap" 
-              className="flex items-center justify-center data-[state=active]:bg-gray-100 rounded-lg transition-colors"
+            <TabsTrigger
+              value="swap"
+              className="flex items-center justify-center data-[state=active]:bg-stone-100 rounded-lg transition-colors"
             >
-              <ArrowDownUp className="w-6 h-6" />
+              <RiSwapBoxLine className="w-6 h-6" />
             </TabsTrigger>
           </TabsList>
         </Tabs>
       </TabContext.Provider>
 
       {/* Success Dialog */}
-      <Dialog open={transactionState === "success"} onOpenChange={resetTransaction}>
+      <Dialog
+        open={transactionState === "success"}
+        onOpenChange={resetTransaction}
+      >
         <DialogContent className="sm:max-w-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -250,12 +265,19 @@ export default function Frame() {
               <Check className="w-8 h-8 text-green-500" />
             </div>
             <h3 className="text-xl font-medium mb-2">Transaction Successful</h3>
-            <p className="text-gray-600 mb-6">Successfully swapped tokens</p>
+            <p className="text-stone-600 mb-6">Successfully swapped tokens</p>
             <div className="space-y-3 w-full">
-              <Button className="w-full" onClick={() => window.open("https://basescan.org", "_blank")}>
+              <Button
+                className="w-full"
+                onClick={() => window.open("https://basescan.org", "_blank")}
+              >
                 View Transaction
               </Button>
-              <Button onClick={resetTransaction} variant="outline" className="w-full">
+              <Button
+                onClick={resetTransaction}
+                variant="outline"
+                className="w-full"
+              >
                 Close
               </Button>
             </div>
@@ -264,7 +286,10 @@ export default function Frame() {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={transactionState === "error"} onOpenChange={resetTransaction}>
+      <Dialog
+        open={transactionState === "error"}
+        onOpenChange={resetTransaction}
+      >
         <DialogContent className="sm:max-w-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -277,14 +302,17 @@ export default function Frame() {
               <AlertTriangle className="w-8 h-8 text-red-500" />
             </div>
             <h3 className="text-xl font-medium mb-2">Transaction Failed</h3>
-            <p className="text-gray-600 mb-6">Please try again</p>
-            <Button onClick={resetTransaction} variant="outline" className="w-full">
+            <p className="text-stone-600 mb-6">Please try again</p>
+            <Button
+              onClick={resetTransaction}
+              variant="outline"
+              className="w-full"
+            >
               Close
             </Button>
           </motion.div>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-
