@@ -7,17 +7,17 @@
  * - Notification handling for frame events
  * - Safe area insets for different devices
  */
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { User, ArrowDownUp, Check, AlertTriangle, Loader2 } from "lucide-react"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { motion, AnimatePresence } from "framer-motion"
-import sdk from "@farcaster/frame-sdk"
-import UserTab from "./user"
-import SwapTab from "./swap"
+import { useEffect, useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, ArrowDownUp, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import sdk from "@farcaster/frame-sdk";
+import UserTab from "./user";
+import SwapTab from "./swap";
 
 /**
  * Type definition for Farcaster Frame context
@@ -31,7 +31,7 @@ type FrameContext = {
     pfpUrl?: string;
   };
   location?: {
-    type: 'cast_embed' | 'notification' | 'launcher' | 'channel';
+    type: "cast_embed" | "notification" | "launcher" | "channel";
     cast?: {
       fid: number;
       hash: string;
@@ -61,11 +61,11 @@ type FrameContext = {
       token: string;
     };
   };
-}
+};
 
 /**
  * Frame Component
- * Main container for the NativeSwap frame interface
+ * Main container for the Native Swap frame interface
  * Features:
  * - Tabbed navigation between User and Swap views
  * - Transaction status dialogs
@@ -75,83 +75,86 @@ type FrameContext = {
  * @returns {JSX.Element} The frame interface
  */
 export default function Frame() {
-  const [isSDKReady, setIsSDKReady] = useState(false)
-  const [context, setContext] = useState<FrameContext | null>(null)
-  const [transactionState, setTransactionState] = useState("idle") // idle, loading, success, error
+  const [isSDKReady, setIsSDKReady] = useState(false);
+  const [context, setContext] = useState<FrameContext | null>(null);
+  const [transactionState, setTransactionState] = useState("idle"); // idle, loading, success, error
 
   useEffect(() => {
     const initializeSDK = async () => {
-      await sdk.actions.ready()
-      const frameContext = await sdk.context
-      setContext(frameContext)
-      setIsSDKReady(true)
+      await sdk.actions.ready();
+      const frameContext = await sdk.context;
+      setContext(frameContext);
+      setIsSDKReady(true);
 
       // Check for new announcements
       if (frameContext.user?.fid) {
         try {
-          await fetch('/api/announcements', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fid: frameContext.user.fid })
-          })
+          await fetch("/api/announcements", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ fid: frameContext.user.fid }),
+          });
         } catch (error) {
-          console.error('Failed to check announcements:', error)
+          console.error("Failed to check announcements:", error);
         }
       }
-    }
-    initializeSDK()
+    };
+    initializeSDK();
 
     // Listen for frame events
-    sdk.on('frameAdded', async ({ notificationDetails }) => {
+    sdk.on("frameAdded", async ({ notificationDetails }) => {
       if (notificationDetails && context?.user?.fid) {
         // Send welcome notification without rate limit
         try {
-          await fetch('/api/notifications', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'X-Skip-Rate-Limit': 'true'  // Special header to skip rate limit
+          await fetch("/api/notifications", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Skip-Rate-Limit": "true", // Special header to skip rate limit
             },
             body: JSON.stringify({
               fid: context.user.fid,
               notificationId: `welcome:${context.user.fid}:${Date.now()}`, // Unique ID per welcome
-              title: 'Welcome to NativeSwap! 👋',
-              body: 'Thanks for adding NativeSwap. You will receive notifications for successful swaps and announcements.',
-              priority: 'high'  // Mark as high priority notification
-            })
-          })
+              title: "Welcome to Native Swap! 👋",
+              body: "Thanks for adding Native Swap. You will receive notifications for successful swaps and announcements.",
+              priority: "high", // Mark as high priority notification
+            }),
+          });
         } catch (error) {
-          console.error('Failed to send welcome notification:', error)
+          console.error("Failed to send welcome notification:", error);
         }
       }
-    })
+    });
 
     return () => {
-      sdk.removeAllListeners()
-    }
-  }, [context?.user?.fid])
+      sdk.removeAllListeners();
+    };
+  }, [context?.user?.fid]);
 
   const resetTransaction = () => {
-    setTransactionState("idle")
-  }
+    setTransactionState("idle");
+  };
 
   if (!isSDKReady) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <Tabs defaultValue="user" className="h-full flex flex-col">
-        <div className="flex-1 overflow-auto p-4 md:p-8" style={{
-          marginTop: context?.client?.safeAreaInsets?.top,
-          marginBottom: context?.client?.safeAreaInsets?.bottom,
-          marginLeft: context?.client?.safeAreaInsets?.left,
-          marginRight: context?.client?.safeAreaInsets?.right,
-        }}>
+        <div
+          className="flex-1 overflow-auto p-4 md:p-8"
+          style={{
+            marginTop: context?.client?.safeAreaInsets?.top,
+            marginBottom: context?.client?.safeAreaInsets?.bottom,
+            marginLeft: context?.client?.safeAreaInsets?.left,
+            marginRight: context?.client?.safeAreaInsets?.right,
+          }}
+        >
           <AnimatePresence mode="wait">
             <TabsContent value="user" className="m-0 h-full">
               <motion.div
@@ -191,7 +194,10 @@ export default function Frame() {
       </Tabs>
 
       {/* Success Dialog */}
-      <Dialog open={transactionState === "success"} onOpenChange={resetTransaction}>
+      <Dialog
+        open={transactionState === "success"}
+        onOpenChange={resetTransaction}
+      >
         <DialogContent className="sm:max-w-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -206,10 +212,17 @@ export default function Frame() {
             <h3 className="text-xl font-medium mb-2">Transaction Successful</h3>
             <p className="text-gray-600 mb-6">Successfully swapped tokens</p>
             <div className="space-y-3 w-full">
-              <Button className="w-full" onClick={() => window.open("https://basescan.io", "_blank")}>
+              <Button
+                className="w-full"
+                onClick={() => window.open("https://basescan.io", "_blank")}
+              >
                 View Transaction
               </Button>
-              <Button onClick={resetTransaction} variant="outline" className="w-full">
+              <Button
+                onClick={resetTransaction}
+                variant="outline"
+                className="w-full"
+              >
                 Close
               </Button>
             </div>
@@ -218,7 +231,10 @@ export default function Frame() {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={transactionState === "error"} onOpenChange={resetTransaction}>
+      <Dialog
+        open={transactionState === "error"}
+        onOpenChange={resetTransaction}
+      >
         <DialogContent className="sm:max-w-md">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -232,13 +248,16 @@ export default function Frame() {
             </div>
             <h3 className="text-xl font-medium mb-2">Transaction Failed</h3>
             <p className="text-gray-600 mb-6">Please try again</p>
-            <Button onClick={resetTransaction} variant="outline" className="w-full">
+            <Button
+              onClick={resetTransaction}
+              variant="outline"
+              className="w-full"
+            >
               Close
             </Button>
           </motion.div>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

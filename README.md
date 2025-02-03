@@ -117,7 +117,7 @@ curl -X GET '[YOUR_APP_URL]/api/announcements' \
 
 You can use this Python script to manage notifications and announcements:
 
-```python
+````python
 import requests
 import time
 import json
@@ -134,12 +134,12 @@ def get_all_fids():
         "Authorization": f"Bearer {SUPABASE_KEY}",
         "Content-Type": "application/json"
     }
-    
+
     response = requests.get(
         f"{SUPABASE_URL}/rest/v1/notification_tokens?select=fid",
         headers=headers
     )
-    
+
     if response.status_code == 200:
         return [item['fid'] for item in response.json()]
     else:
@@ -152,17 +152,17 @@ def send_announcement_to_user(fid):
         "Content-Type": "application/json",
         "X-Skip-Rate-Limit": "true"
     }
-    
+
     data = {
         "fid": fid
     }
-    
+
     response = requests.post(
         f"{APP_URL}/api/announcements",
         headers=headers,
         json=data
     )
-    
+
     return response.status_code == 200
 
 def create_announcement(title, text):
@@ -173,26 +173,26 @@ def create_announcement(title, text):
         "Content-Type": "application/json",
         "Prefer": "return=minimal"
     }
-    
+
     data = {
         "title": title,
         "text": text,
         "created_at": time.strftime('%Y-%m-%dT%H:%M:%SZ')
     }
-    
+
     response = requests.post(
         f"{SUPABASE_URL}/rest/v1/announcements",
         headers=headers,
         json=data
     )
-    
+
     return response.status_code == 201
 
 def main():
     # 1. Create a new announcement
     announcement_title = "🎉 New Features Released!"
-    announcement_text = "We've just released exciting new features for NativeSwap. Check them out!"
-    
+    announcement_text = "We've just released exciting new features for Native Swap. Check them out!"
+
     print("Creating new announcement...")
     if create_announcement(announcement_title, announcement_text):
         print("Announcement created successfully!")
@@ -212,14 +212,14 @@ def main():
     print("\nSending notifications to users...")
     for i, fid in enumerate(fids, 1):
         print(f"Processing {i}/{len(fids)}: FID {fid}", end=" ")
-        
+
         if send_announcement_to_user(fid):
             print("✅")
             success_count += 1
         else:
             print("❌")
             fail_count += 1
-        
+
         # Small delay between requests
         time.sleep(0.5)
 
@@ -244,11 +244,12 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
+````
 
 For local development and testing with Farcaster Frames, you'll need to expose your local server using ngrok:
 
 1. Install ngrok:
+
 ```bash
 # Using npm
 npm install ngrok -g
@@ -261,11 +262,13 @@ brew install ngrok
 ```
 
 2. Start your local server (default port 3000):
+
 ```bash
 npm run dev
 ```
 
 3. In a new terminal, start ngrok:
+
 ```bash
 ngrok http 3000
 ```
@@ -273,11 +276,13 @@ ngrok http 3000
 4. Copy the HTTPS URL provided by ngrok (e.g., `https://your-ngrok-url.ngrok.io`)
 
 5. Update your environment variables:
+
 ```env
 NEXT_PUBLIC_URL=https://your-ngrok-url.ngrok.io
 ```
 
 6. Test your Frame:
+
 - Go to [Warpcast Frame Development](https://warpcast.com/~/developers/frames)
 - Paste your ngrok URL into the frame URL field
 - Click "Test frame" to preview and debug your frame
