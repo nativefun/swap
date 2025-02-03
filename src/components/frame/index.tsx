@@ -226,23 +226,24 @@ export default function Frame() {
 
           {/* Bottom Navigation */}
           <TabsList
-            className="fixed bottom-0 left-0 right-0 h-14 grid grid-cols-2 gap-4 bg-white border-t shadow-lg max-w-2xl mx-auto z-50"
+            className="fixed bottom-0 left-0 right-0 grid grid-cols-2 gap-4 bg-white h-16 border-t shadow-lg max-w-2xl mx-auto z-50 rounded-none px-2"
             style={{
-              paddingBottom: context?.client?.safeAreaInsets?.bottom || 0,
               marginBottom: 0,
             }}
           >
             <TabsTrigger
               value="user"
-              className="flex items-center justify-center data-[state=active]:bg-stone-100 rounded-lg transition-colors"
+              className="flex p-2 gap-2 items-center justify-center data-[state=active]:bg-stone-100 rounded-lg transition-colors data-[state=active]:shadow-inner"
             >
               <FaHome className="w-6 h-6" />
+              Home
             </TabsTrigger>
             <TabsTrigger
               value="swap"
-              className="flex items-center justify-center data-[state=active]:bg-stone-100 rounded-lg transition-colors"
+              className="flex p-2 gap-2 items-center justify-center data-[state=active]:bg-stone-100 rounded-lg transition-colors data-[state=active]:shadow-inner"
             >
               <RiSwapBoxLine className="w-6 h-6" />
+              Swap
             </TabsTrigger>
           </TabsList>
         </Tabs>

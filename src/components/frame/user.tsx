@@ -53,7 +53,7 @@ const AnnouncementItem = ({
   text: string;
   castUrl?: string;
 }) => (
-  <div className="py-3">
+  <div className="py-2">
     <div className="flex justify-between items-start">
       <h3 className="font-bold text-lg">{title}</h3>
       {castUrl && (
@@ -65,9 +65,10 @@ const AnnouncementItem = ({
               console.error("Failed to open cast URL:", error);
             }
           }}
-          className="text-stone-500 hover:text-stone-700"
+          className="flex items-center text-3xs font-mono gap-1 uppercase text-stone-500 hover:text-stone-700"
         >
-          <ExternalLink className="h-4 w-4" />
+          <div className="pt-0.5">View Cast</div>
+          <ExternalLink className="h-3 w-3" />
         </button>
       )}
     </div>
@@ -279,15 +280,16 @@ export default function User() {
       </div>
 
       {/* Scrollable Announcements Section */}
-      <div className="flex-1">
-        <h3 className="font-bold text-lg sm:text-xl px-4 sm:px-6 mb-2">
+      <div className="flex-1 mt-2">
+        <h3 className="flex items-center justify-between font-mono uppercase text-xs sm:text-xs px-4 sm:px-6 pb-2 gap-2">
           Announcements
+          <div className="h-0.5 w-80 bg-stone-500" />
         </h3>
         <ScrollArea className="h-[calc(100vh-320px)] sm:h-[calc(100vh-360px)]">
-          <div className="px-4 sm:px-6 pb-4">
-            <div className="space-y-4">
+          <div className="pb-4 px-4">
+            <div className="space-y-2">
               {announcements.map((announcement, index) => (
-                <div key={index} className="bg-stone-50 rounded-xl p-4">
+                <div key={announcement.id}>
                   <AnnouncementItem
                     title={announcement.title}
                     text={announcement.text}

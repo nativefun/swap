@@ -370,7 +370,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
               variant="ghost"
               size="icon"
               onClick={handleSwapTokens}
-              className="bg-white shadow-md rounded-full h-8 w-8 z-10 transition-all duration-200 hover:bg-emerald-600 hover:text-white font-bold active:duration-500 active:rotate-180"
+              className="bg-white shadow-md rounded-full h-8 w-8 z-10 transition-all duration-200 hover:bg-emerald-600 hover:text-white font-bold active:duration-300 active:rotate-180"
             >
               <RiSwapBoxLine className="h-6 w-6" />
             </Button>
@@ -410,7 +410,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
           {fetchPriceError.length > 0 && (
             <div className="text-red-500 text-sm">
               {fetchPriceError.map((error, index) => (
-                <div key={index}>{error}</div>
+                <div key={`priceError-${index}`}>{error}</div>
               ))}
             </div>
           )}
