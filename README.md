@@ -117,7 +117,11 @@ curl -X GET '[YOUR_APP_URL]/api/announcements' \
 
 You can use this Python script to manage notifications and announcements:
 
+<<<<<<< HEAD
 ```python
+=======
+````python
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 import requests
 import time
 import json
@@ -134,17 +138,39 @@ def get_all_fids():
         "Authorization": f"Bearer {SUPABASE_KEY}",
         "Content-Type": "application/json"
     }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
     response = requests.get(
         f"{SUPABASE_URL}/rest/v1/notification_tokens?select=fid",
         headers=headers
     )
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
     if response.status_code == 200:
         return [item['fid'] for item in response.json()]
     else:
         print(f"Error getting FIDs: {response.status_code}")
         return []
+<<<<<<< HEAD
+=======
+
+def send_announcement_to_user(fid):
+    """Send an announcement to a single user"""
+    headers = {
+        "Content-Type": "application/json",
+        "X-Skip-Rate-Limit": "true"
+    }
+
+    data = {
+        "fid": fid
+    }
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 
 def send_announcement_to_user(fid):
     """Send an announcement to a single user"""
@@ -162,9 +188,15 @@ def send_announcement_to_user(fid):
         headers=headers,
         json=data
     )
+<<<<<<< HEAD
     
     return response.status_code == 200
 
+=======
+
+    return response.status_code == 200
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 def create_announcement(title, text):
     """Create a new announcement in Supabase"""
     headers = {
@@ -188,6 +220,7 @@ def create_announcement(title, text):
     
     return response.status_code == 201
 
+<<<<<<< HEAD
 def main():
     # 1. Create a new announcement
     announcement_title = "🎉 New Features Released!"
@@ -229,6 +262,63 @@ def main():
     print(f"Successful: {success_count}")
     print(f"Failed: {fail_count}")
 
+=======
+    data = {
+        "title": title,
+        "text": text,
+        "created_at": time.strftime('%Y-%m-%dT%H:%M:%SZ')
+    }
+
+    response = requests.post(
+        f"{SUPABASE_URL}/rest/v1/announcements",
+        headers=headers,
+        json=data
+    )
+
+    return response.status_code == 201
+
+def main():
+    # 1. Create a new announcement
+    announcement_title = "🎉 New Features Released!"
+    announcement_text = "We've just released exciting new features for Native Swap. Check them out!"
+
+    print("Creating new announcement...")
+    if create_announcement(announcement_title, announcement_text):
+        print("Announcement created successfully!")
+    else:
+        print("Failed to create announcement")
+        return
+
+    # 2. Fetch all FIDs
+    print("\nGetting all FIDs...")
+    fids = get_all_fids()
+    print(f"Found {len(fids)} users")
+
+    # 3. Send to all users
+    success_count = 0
+    fail_count = 0
+
+    print("\nSending notifications to users...")
+    for i, fid in enumerate(fids, 1):
+        print(f"Processing {i}/{len(fids)}: FID {fid}", end=" ")
+
+        if send_announcement_to_user(fid):
+            print("✅")
+            success_count += 1
+        else:
+            print("❌")
+            fail_count += 1
+
+        # Small delay between requests
+        time.sleep(0.5)
+
+    # 4. Print summary
+    print("\nNotification Summary:")
+    print(f"Total Users: {len(fids)}")
+    print(f"Successful: {success_count}")
+    print(f"Failed: {fail_count}")
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 if __name__ == "__main__":
     main()
 
@@ -244,8 +334,24 @@ yarn dev
 pnpm dev
 # or
 bun dev
+````
+
+For local development and testing with Farcaster Frames, you'll need to expose your local server using ngrok:
+
+1. Install ngrok:
+
+```bash
+# Using npm
+npm install ngrok -g
+
+# Using chocolatey (Windows)
+choco install ngrok
+
+# Using homebrew (macOS)
+brew install ngrok
 ```
 
+<<<<<<< HEAD
 For local development and testing with Farcaster Frames, you'll need to expose your local server using ngrok:
 
 1. Install ngrok:
@@ -261,11 +367,19 @@ brew install ngrok
 ```
 
 2. Start your local server (default port 3000):
+=======
+2. Start your local server (default port 3000):
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 ```bash
 npm run dev
 ```
 
 3. In a new terminal, start ngrok:
+<<<<<<< HEAD
+=======
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 ```bash
 ngrok http 3000
 ```
@@ -273,11 +387,19 @@ ngrok http 3000
 4. Copy the HTTPS URL provided by ngrok (e.g., `https://your-ngrok-url.ngrok.io`)
 
 5. Update your environment variables:
+<<<<<<< HEAD
+=======
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 ```env
 NEXT_PUBLIC_URL=https://your-ngrok-url.ngrok.io
 ```
 
 6. Test your Frame:
+<<<<<<< HEAD
+=======
+
+>>>>>>> 34c2f6354692aa38432b1a0eb2c7f522a4fce419
 - Go to [Warpcast Frame Development](https://warpcast.com/~/developers/frames)
 - Paste your ngrok URL into the frame URL field
 - Click "Test frame" to preview and debug your frame

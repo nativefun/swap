@@ -10,7 +10,7 @@ const frame = {
     title: "Launch Swap",
     action: {
       type: "launch_frame",
-      name: "NativeSwap",
+      name: "Native Swap",
       url: appUrl,
       splashImageUrl: `${appUrl}/splash.png`,
       splashBackgroundColor: "#f7f7f7",
@@ -22,9 +22,9 @@ export const revalidate = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
-    title: "NativeSwap",
+    title: "Native Swap",
     openGraph: {
-      title: "NativeSwap",
+      title: "Native Swap",
       description: "A native swap app",
     },
     other: {
