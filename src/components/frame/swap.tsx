@@ -18,13 +18,14 @@ import {
   useBalance,
 } from "wagmi";
 import { parseUnits, formatUnits, type BaseError } from "viem";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowDownUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import qs from "qs";
 import sdk from "@farcaster/frame-sdk";
 import type { QuoteResponse } from "@/lib/types/zeroex";
+import { useTokenBalance } from "@/lib/hooks/useTokenBalance";
 
 /**
  * Token interface defining the structure of tradeable tokens
@@ -71,6 +72,15 @@ interface SwapProps {
   setTransactionState: (state: string) => void;
 }
 
+const formatBalance = (value: string | undefined, decimals: number = 3): string => {
+  if (!value) return "0.0";
+  const num = Number(value);
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: decimals,
+  }).format(num);
+};
+
 /**
  * Swap Component
  * Provides the main swap interface for trading ETH to NATIVE tokens
@@ -85,15 +95,17 @@ interface SwapProps {
  */
 export default function Swap({ setTransactionState }: SwapProps) {
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
-  const sellToken = ETH;
+  const [isSelling, setIsSelling] = useState(false);
+  const sellToken = isSelling ? NATIVE_TOKEN : ETH;
+  const buyToken = isSelling ? ETH : NATIVE_TOKEN;
   const [sellAmount, setSellAmount] = useState("");
   const [buyAmount, setBuyAmount] = useState("");
-  const buyToken = NATIVE_TOKEN;
   const [isFinalized, setIsFinalized] = useState(false);
   const [quote, setQuote] = useState<QuoteResponse>();
   const [fetchPriceError, setFetchPriceError] = useState<string[]>([]);
   const { address, isConnected } = useAccount();
   const { data: ethBalance } = useBalance({ address });
+  const { balance: nativeBalance } = useTokenBalance(address, NATIVE_TOKEN.address);
   const parsedSellAmount = sellAmount
     ? parseUnits(sellAmount, sellToken.decimals).toString()
     : undefined;
@@ -115,7 +127,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
 
   useEffect(() => {
     const load = async () => {
-      sdk.actions.ready();
+      await sdk.actions.ready();
     };
     if (sdk && !isSDKLoaded) {
       setIsSDKLoaded(true);
@@ -179,6 +191,26 @@ export default function Swap({ setTransactionState }: SwapProps) {
     }
   }, [quote, sendTransaction, setTransactionState]);
 
+  const handleSwapTokens = useCallback(() => {
+    setIsSelling(!isSelling);
+    setSellAmount("");
+    setBuyAmount("");
+    setIsFinalized(false);
+    setQuote(undefined);
+    setFetchPriceError([]);
+  }, [isSelling]);
+
+  const handlePercentageClick = useCallback((percentage: number) => {
+    const balance = isSelling 
+      ? nativeBalance?.balance_formatted 
+      : ethBalance?.value ? formatUnits(ethBalance.value, 18) : "0";
+    
+    if (balance) {
+      const amount = (Number(balance) * percentage).toFixed(6);
+      setSellAmount(amount);
+    }
+  }, [isSelling, nativeBalance, ethBalance]);
+
   useEffect(() => {
     if (isConfirmed) {
       setTransactionState("success");
@@ -224,7 +256,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
   useEffect(() => {
     const params = {
       chainId: 8453,
-      sellToken: ETH.address,
+      sellToken: sellToken.address,
       buyToken: buyToken.address,
       sellAmount: parsedSellAmount,
       buyAmount: parsedBuyAmount,
@@ -250,6 +282,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
     parsedBuyAmount,
     parsedSellAmount,
     sellAmount,
+    sellToken.address,
     isFinalized,
     fetchPrice,
     fetchQuote,
@@ -266,15 +299,17 @@ export default function Swap({ setTransactionState }: SwapProps) {
   return (
     <div className="flex items-center justify-center min-h-[80vh]">
       <Card className="w-full max-w-md shadow-lg">
-        <CardContent className="p-6 space-y-8">
-          {/* ETH Input */}
+        <CardContent className="p-6 space-y-4">
+          {/* Input Token */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm font-medium text-gray-700">
               <span>You pay</span>
               <span>
                 Balance:{" "}
-                {ethBalance?.value ? formatUnits(ethBalance.value, 18) : "0.0"}{" "}
-                ETH
+                {isSelling
+                  ? formatBalance(nativeBalance?.balance_formatted)
+                  : formatBalance(ethBalance?.value ? formatUnits(ethBalance.value, 18) : "0")}{" "}
+                {sellToken.symbol}
               </span>
             </div>
             <div className="flex items-center space-x-2 p-4 bg-gray-50 rounded-xl">
@@ -297,14 +332,40 @@ export default function Swap({ setTransactionState }: SwapProps) {
                 placeholder="0.0"
               />
             </div>
+            {/* Percentage Buttons */}
+            <div className="flex gap-2 mt-2">
+              {[0.25, 0.5, 0.75, 1].map((percentage) => (
+                <Button
+                  key={percentage}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handlePercentageClick(percentage)}
+                  className="flex-1 text-xs"
+                >
+                  {percentage * 100}%
+                </Button>
+              ))}
+            </div>
           </div>
 
-          {/* NATIVE Input */}
+          {/* Swap Direction Button */}
+          <div className="flex justify-center -my-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleSwapTokens}
+              className="bg-white shadow-md rounded-full h-8 w-8 z-10"
+            >
+              <ArrowDownUp className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Output Token */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm font-medium text-gray-700">
               <span>You receive</span>
               <span>
-                1 ETH ≈ {buyAmount || "0.0"} {buyToken.symbol}
+                1 {sellToken.symbol} ≈ {formatBalance(buyAmount)} {buyToken.symbol}
               </span>
             </div>
             <div className="flex items-center space-x-2 p-4 bg-gray-50 rounded-xl">
@@ -371,8 +432,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
           {quote && (
             <div className="text-sm text-gray-500 text-center">
               Minimum received:{" "}
-              {formatUnits(BigInt(quote.minBuyAmount), buyToken.decimals)}{" "}
-              {buyToken.symbol}
+              {formatBalance(formatUnits(BigInt(quote.minBuyAmount), buyToken.decimals))} {buyToken.symbol}
             </div>
           )}
         </CardContent>

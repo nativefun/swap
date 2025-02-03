@@ -9,7 +9,7 @@
  */
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, createContext } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { User, ArrowDownUp, Check, AlertTriangle, Loader2 } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -63,6 +63,31 @@ type FrameContext = {
   };
 }
 
+// Add Tab Control Context
+type TabContextType = {
+  setActiveTab: (tab: string) => void;
+}
+
+export const TabContext = createContext<TabContextType | null>(null)
+
+const LoadingSpinner = () => (
+  <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+    <motion.div
+      className="w-16 h-16 border-4 border-primary rounded-full border-t-transparent"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+    />
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="text-gray-500 font-medium"
+    >
+      Loading NativeSwap...
+    </motion.p>
+  </div>
+);
+
 /**
  * Frame Component
  * Main container for the NativeSwap frame interface
@@ -78,6 +103,7 @@ export default function Frame() {
   const [isSDKReady, setIsSDKReady] = useState(false)
   const [context, setContext] = useState<FrameContext | null>(null)
   const [transactionState, setTransactionState] = useState("idle") // idle, loading, success, error
+  const [activeTab, setActiveTab] = useState("user")
 
   useEffect(() => {
     const initializeSDK = async () => {
@@ -145,50 +171,70 @@ export default function Frame() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-      <Tabs defaultValue="user" className="h-full flex flex-col">
-        <div className="flex-1 overflow-auto p-4 md:p-8" style={{
-          marginTop: context?.client?.safeAreaInsets?.top,
-          marginBottom: context?.client?.safeAreaInsets?.bottom,
-          marginLeft: context?.client?.safeAreaInsets?.left,
-          marginRight: context?.client?.safeAreaInsets?.right,
-        }}>
-          <AnimatePresence mode="wait">
-            <TabsContent value="user" className="m-0 h-full">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <UserTab />
-              </motion.div>
-            </TabsContent>
+      <TabContext.Provider value={{ setActiveTab: (tab: string) => {
+        setActiveTab(tab)
+        const tabsElement = document.querySelector(`[data-value="${tab}"]`) as HTMLElement
+        if (tabsElement) {
+          tabsElement.click()
+        }
+      }}}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <div 
+            className="flex-1" 
+            style={{
+              paddingTop: `${context?.client?.safeAreaInsets?.top || 16}px`,
+              paddingLeft: `${context?.client?.safeAreaInsets?.left || 16}px`,
+              paddingRight: `${context?.client?.safeAreaInsets?.right || 16}px`,
+            }}
+          >
+            <AnimatePresence mode="wait">
+              <TabsContent value="user" className="m-0 h-full">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <UserTab />
+                </motion.div>
+              </TabsContent>
 
-            <TabsContent value="swap" className="m-0 h-full">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <SwapTab setTransactionState={setTransactionState} />
-              </motion.div>
-            </TabsContent>
-          </AnimatePresence>
-        </div>
+              <TabsContent value="swap" className="m-0 h-full">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <SwapTab setTransactionState={setTransactionState} />
+                </motion.div>
+              </TabsContent>
+            </AnimatePresence>
+          </div>
 
-        {/* Bottom Navigation */}
-        <TabsList className="fixed bottom-0 left-0 right-0 h-16 grid grid-cols-2 gap-4 bg-white border-t max-w-md mx-auto">
-          <TabsTrigger value="user" className="flex flex-col items-center">
-            <User className="w-5 h-5" />
-            <span className="text-xs">User</span>
-          </TabsTrigger>
-          <TabsTrigger value="swap" className="flex flex-col items-center">
-            <ArrowDownUp className="w-5 h-5" />
-            <span className="text-xs">Swap</span>
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+          {/* Bottom Navigation */}
+          <TabsList 
+            className="fixed bottom-0 left-0 right-0 h-14 grid grid-cols-2 gap-4 bg-white border-t shadow-lg max-w-2xl mx-auto z-50"
+            style={{
+              paddingBottom: context?.client?.safeAreaInsets?.bottom || 0,
+              marginBottom: 0,
+            }}
+          >
+            <TabsTrigger 
+              value="user" 
+              className="flex items-center justify-center data-[state=active]:bg-gray-100 rounded-lg transition-colors"
+            >
+              <User className="w-6 h-6" />
+            </TabsTrigger>
+            <TabsTrigger 
+              value="swap" 
+              className="flex items-center justify-center data-[state=active]:bg-gray-100 rounded-lg transition-colors"
+            >
+              <ArrowDownUp className="w-6 h-6" />
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </TabContext.Provider>
 
       {/* Success Dialog */}
       <Dialog open={transactionState === "success"} onOpenChange={resetTransaction}>
@@ -206,7 +252,7 @@ export default function Frame() {
             <h3 className="text-xl font-medium mb-2">Transaction Successful</h3>
             <p className="text-gray-600 mb-6">Successfully swapped tokens</p>
             <div className="space-y-3 w-full">
-              <Button className="w-full" onClick={() => window.open("https://basescan.io", "_blank")}>
+              <Button className="w-full" onClick={() => window.open("https://basescan.org", "_blank")}>
                 View Transaction
               </Button>
               <Button onClick={resetTransaction} variant="outline" className="w-full">

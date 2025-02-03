@@ -16,6 +16,7 @@ export type Announcement = {
   title: string
   text: string
   created_at: string
+  cast_url?: string  // Optional cast URL
 }
 
 /**
@@ -60,6 +61,22 @@ export async function getLatestAnnouncement() {
   
   if (error) throw error
   return data as Announcement
+}
+
+/**
+ * Gets the latest announcements from the database
+ * @param {number} limit - Number of announcements to fetch (default: 5)
+ * @returns {Promise<Announcement[]>} Array of latest announcements
+ */
+export async function getLatestAnnouncements(limit: number = 5) {
+  const { data, error } = await supabase
+    .from('announcements')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(limit)
+  
+  if (error) throw error
+  return data as Announcement[]
 }
 
 /**

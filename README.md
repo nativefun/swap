@@ -115,112 +115,122 @@ curl -X GET '[YOUR_APP_URL]/api/announcements' \
 
 #### Python Script Examples
 
-You can also use Python to manage notifications and announcements:
-
-1. **Setup and Configuration**
+You can use this Python script to manage notifications and announcements:
 
 ```python
 import requests
+import time
 import json
-from datetime import datetime
 
-class FarcasterNotifications:
-    def __init__(self):
-        self.supabase_url = "YOUR_SUPABASE_URL"
-        self.supabase_key = "YOUR_SUPABASE_KEY"
-        self.app_url = "YOUR_APP_URL"
+# Configuration
+SUPABASE_URL = "https://mock-supabase-url.example.com"  # Mock Supabase URL
+SUPABASE_KEY = "mock-supabase-key-1234567890"  # Mock Supabase API key
+APP_URL = "https://mock-app-url.example.com"  # Mock application URL
 
-        self.headers = {
-            "apikey": self.supabase_key,
-            "Authorization": f"Bearer {self.supabase_key}",
-            "Content-Type": "application/json"
-        }
-```
-
-2. **Create and Send Announcements**
-
-```python
-def create_announcement(self, title: str, text: str) -> dict:
-    """Create a new announcement in Supabase"""
-    data = {
-        "title": title,
-        "text": text,
-        "created_at": datetime.utcnow().isoformat()
-    }
-
-    response = requests.post(
-        f"{self.supabase_url}/rest/v1/announcements",
-        headers=self.headers,
-        json=data
-    )
-    return response.json()
-
-def send_notification(self, fid: int, skip_rate_limit: bool = False) -> dict:
-    """Send notification to specific user"""
+def get_all_fids():
+    """Fetch all FIDs from Supabase"""
     headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
         "Content-Type": "application/json"
     }
-    if skip_rate_limit:
-        headers["X-Skip-Rate-Limit"] = "true"
+    
+    response = requests.get(
+        f"{SUPABASE_URL}/rest/v1/notification_tokens?select=fid",
+        headers=headers
+    )
+    
+    if response.status_code == 200:
+        return [item['fid'] for item in response.json()]
+    else:
+        print(f"Error getting FIDs: {response.status_code}")
+        return []
 
-    data = {"fid": fid}
-
+def send_announcement_to_user(fid):
+    """Send an announcement to a single user"""
+    headers = {
+        "Content-Type": "application/json",
+        "X-Skip-Rate-Limit": "true"
+    }
+    
+    data = {
+        "fid": fid
+    }
+    
     response = requests.post(
-        f"{self.app_url}/api/announcements",
+        f"{APP_URL}/api/announcements",
         headers=headers,
         json=data
     )
-    return response.json()
-```
+    
+    return response.status_code == 200
 
-3. **Bulk Operations Example**
-
-```python
-def send_bulk_notifications(self, fids: list[int]) -> dict:
-    """Send notifications to multiple users"""
-    results = {
-        "success": [],
-        "failed": [],
-        "rate_limited": []
+def create_announcement(title, text):
+    """Create a new announcement in Supabase"""
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
     }
+    
+    data = {
+        "title": title,
+        "text": text,
+        "created_at": time.strftime('%Y-%m-%dT%H:%M:%SZ')
+    }
+    
+    response = requests.post(
+        f"{SUPABASE_URL}/rest/v1/announcements",
+        headers=headers,
+        json=data
+    )
+    
+    return response.status_code == 201
 
-    for fid in fids:
-        try:
-            response = self.send_notification(fid, skip_rate_limit=True)
-            if "successTokens" in response:
-                results["success"].append(fid)
-            elif "rateLimitedTokens" in response:
-                results["rate_limited"].append(fid)
-            else:
-                results["failed"].append(fid)
-        except Exception as e:
-            results["failed"].append(fid)
+def main():
+    # 1. Create a new announcement
+    announcement_title = "🎉 New Features Released!"
+    announcement_text = "We've just released exciting new features for NativeSwap. Check them out!"
+    
+    print("Creating new announcement...")
+    if create_announcement(announcement_title, announcement_text):
+        print("Announcement created successfully!")
+    else:
+        print("Failed to create announcement")
+        return
 
-    return results
-```
+    # 2. Fetch all FIDs
+    print("\nGetting all FIDs...")
+    fids = get_all_fids()
+    print(f"Found {len(fids)} users")
 
-4. **Usage Example**
+    # 3. Send to all users
+    success_count = 0
+    fail_count = 0
 
-```python
-# Initialize the client
-client = FarcasterNotifications()
+    print("\nSending notifications to users...")
+    for i, fid in enumerate(fids, 1):
+        print(f"Processing {i}/{len(fids)}: FID {fid}", end=" ")
+        
+        if send_announcement_to_user(fid):
+            print("✅")
+            success_count += 1
+        else:
+            print("❌")
+            fail_count += 1
+        
+        # Small delay between requests
+        time.sleep(0.5)
 
-# Create new announcement
-announcement = client.create_announcement(
-    title="🚀 New Feature Alert!",
-    text="We've just launched our new swap feature!"
-)
+    # 4. Print summary
+    print("\nNotification Summary:")
+    print(f"Total Users: {len(fids)}")
+    print(f"Successful: {success_count}")
+    print(f"Failed: {fail_count}")
 
-# Send to specific user
-response = client.send_notification(fid=123, skip_rate_limit=True)
-
-# Send to multiple users
-fids = [123, 456, 789]
-results = client.send_bulk_notifications(fids)
-print(f"Success: {len(results['success'])} users")
-print(f"Rate Limited: {len(results['rate_limited'])} users")
-print(f"Failed: {len(results['failed'])} users")
-```
+if __name__ == "__main__":
+    main()
 
 ## Getting Started
 
@@ -236,7 +246,45 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For local development and testing with Farcaster Frames, you'll need to expose your local server using ngrok:
+
+1. Install ngrok:
+```bash
+# Using npm
+npm install ngrok -g
+
+# Using chocolatey (Windows)
+choco install ngrok
+
+# Using homebrew (macOS)
+brew install ngrok
+```
+
+2. Start your local server (default port 3000):
+```bash
+npm run dev
+```
+
+3. In a new terminal, start ngrok:
+```bash
+ngrok http 3000
+```
+
+4. Copy the HTTPS URL provided by ngrok (e.g., `https://your-ngrok-url.ngrok.io`)
+
+5. Update your environment variables:
+```env
+NEXT_PUBLIC_URL=https://your-ngrok-url.ngrok.io
+```
+
+6. Test your Frame:
+- Go to [Warpcast Frame Development](https://warpcast.com/~/developers/frames)
+- Paste your ngrok URL into the frame URL field
+- Click "Test frame" to preview and debug your frame
+
+Note: The ngrok URL changes each time you restart ngrok. For persistent URLs, consider upgrading to a paid ngrok plan or using a production deployment.
+
+You can access your local development server at [http://localhost:3000](http://localhost:3000) and the ngrok-exposed version at your ngrok URL.
 
 ## Dependencies
 
@@ -267,32 +315,43 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
 
 ## Database Schema
 
-### Supabase Tables
+### Supabase Setup
 
-1. **notification_tokens**
+To set up the database tables in Supabase, follow these steps:
 
-```sql
-create table notification_tokens (
-  id bigint generated by default as identity primary key,
-  fid bigint not null,
-  token text not null,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
-);
-
--- Create unique index to prevent duplicate tokens per user
-create unique index notification_tokens_fid_token_key on notification_tokens(fid, token);
-```
-
-2. **announcements**
+1. Open your Supabase project dashboard
+2. Go to SQL Editor
+3. Create a new query
+4. Copy and paste the following SQL:
 
 ```sql
+-- Announcements table
 create table announcements (
   id bigint generated by default as identity primary key,
   title text not null,
   text text not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
+
+-- Notification tokens table
+create table notification_tokens (
+  fid bigint not null,
+  token text not null,
+  url text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  primary key (fid, token)
+);
+
+-- Optional: Add some test data
+insert into announcements (title, text) values 
+('🎉 Welcome to NativeSwap!', 'We are excited to launch our new swap platform.'),
+('📢 New Features', 'Check out our latest updates and improvements.');
 ```
+
+This setup creates:
+1. `announcements` table for storing platform announcements
+2. `notification_tokens` table for managing user notification preferences
+3. Sample announcement data
 
 ## Learn More
 
