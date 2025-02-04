@@ -74,11 +74,13 @@ interface SwapProps {
 }
 
 const formatBalance = (
-  value: string | undefined,
+  value: number | string | undefined,
   decimals: number = 3,
 ): string => {
-  if (!value) return "0.0";
-  const num = Number(value);
+  if (value === undefined) return "0.0";
+
+  const num = typeof value === "string" ? Number(value) : value;
+
   return new Intl.NumberFormat("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: decimals,
