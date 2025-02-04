@@ -381,7 +381,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
             <div className="flex items-center justify-between text-stone-600 font-mono text-2xs uppercase mx-1">
               <span>You receive</span>
               <span>
-                1 {sellToken.symbol} ≈ {console.log(quote)}
+                1 {sellToken.symbol} ≈{" "}
                 {quote
                   ? formatBalance(
                       Number(
