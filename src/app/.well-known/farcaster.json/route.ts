@@ -11,10 +11,10 @@ export async function GET() {
     },
     frame: {
       version: "1",
-      name: "native",
+      name: "Native Swap",
       iconUrl: `${appUrl}/icon.png`,
       splashImageUrl: `${appUrl}/splash.png`,
-      splashBackgroundColor: "#f7f7f7",
+      splashBackgroundColor: "#fafaf9",
       homeUrl: appUrl,
       webhookUrl: `${appUrl}/api/webhook`,
     },
