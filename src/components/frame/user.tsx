@@ -241,8 +241,8 @@ export default function User() {
                       <span
                         className={
                           nativeBalance.usd_price_24hr_percent_change > 0
-                            ? "text-green-500 ml-1"
-                            : "text-red-500 ml-1"
+                            ? "text-emerald-600 ml-1"
+                            : "text-rose-600 ml-1"
                         }
                       >
                         (
@@ -314,10 +314,13 @@ export default function User() {
               <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent
+            align="end"
+            className="w-56 bg-stone-50 border-stone-300 shadow-xl"
+          >
             {!isFrameAdded && (
               <DropdownMenuItem onClick={handleAddFrame}>
-                Add to Favorites
+                Add Frame to Favorites
               </DropdownMenuItem>
             )}
             <DropdownMenuItem
@@ -325,13 +328,13 @@ export default function User() {
                 sdk.actions.openUrl(`https://basescan.org/address/${address}`)
               }
             >
-              View on Basescan
+              View Wallet on Basescan
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             {isConnected ? (
               <DropdownMenuItem
                 onClick={() => disconnect()}
-                className="text-red-600"
+                className="text-rose-600"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Disconnect Wallet

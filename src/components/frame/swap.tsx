@@ -314,7 +314,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
         <CardContent className="p-6 space-y-4">
           {/* Input Token */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm font-medium text-stone-700">
+            <div className="flex items-center justify-between text-stone-600 font-mono text-2xs uppercase mx-1">
               <span>You pay</span>
               <span>
                 Balance:{" "}
@@ -328,8 +328,8 @@ export default function Swap({ setTransactionState }: SwapProps) {
                 {sellToken.symbol}
               </span>
             </div>
-            <div className="flex items-center space-x-2 p-4 bg-stone-50 rounded-xl">
-              <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border">
+            <div className="flex items-center space-x-2 px-2 py-4 bg-stone-50 rounded-xl">
+              <div className="flex items-center space-x-2 bg-white pl-1 pr-3 py-1 h-9 rounded-lg border">
                 <img
                   src={sellToken.image}
                   width={24}
@@ -337,14 +337,14 @@ export default function Swap({ setTransactionState }: SwapProps) {
                   className="w-6 h-6 rounded-full"
                   alt={`${sellToken.symbol} logo`}
                 />
-                <span className="font-medium">{sellToken.symbol}</span>
+                <span className="text-sm font-medium">{sellToken.symbol}</span>
               </div>
               <Input
                 type="number"
                 inputMode="decimal"
                 value={sellAmount}
                 onChange={(e) => setSellAmount(e.target.value)}
-                className="flex-1 bg-transparent text-right text-xl font-medium"
+                className="flex-1 bg-white text-right text-xl"
                 placeholder="0.0"
               />
             </div>
@@ -356,7 +356,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => handlePercentageClick(percentage)}
-                  className="flex-1 text-xs"
+                  className="flex-1 text-2xs rounded-full hover:-rotate-2 hover:bg-emerald-600 hover:text-white hover:scale-105 active:scale-95 active:shadow-inner font-mono uppercase"
                 >
                   {percentage * 100}%
                 </Button>
@@ -365,12 +365,12 @@ export default function Swap({ setTransactionState }: SwapProps) {
           </div>
 
           {/* Swap Direction Button */}
-          <div className="flex justify-center -my-2">
+          <div className="flex justify-center py-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleSwapTokens}
-              className="bg-white shadow-md rounded-full h-8 w-8 z-10 transition-all duration-200 hover:bg-emerald-600 hover:text-white font-bold active:duration-300 active:rotate-180"
+              className="bg-white shadow-md rounded-full h-8 w-8 z-10 transition-all duration-200 hover:bg-emerald-600 hover:text-white font-bold rotate-90 active:duration-300 active:rotate-180"
             >
               <RiSwapBoxLine className="h-6 w-6" />
             </Button>
@@ -378,15 +378,28 @@ export default function Swap({ setTransactionState }: SwapProps) {
 
           {/* Output Token */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm font-medium text-stone-700">
+            <div className="flex items-center justify-between text-stone-600 font-mono text-2xs uppercase mx-1">
               <span>You receive</span>
               <span>
-                1 {sellToken.symbol} ≈ {formatBalance(buyAmount)}{" "}
+                1 {sellToken.symbol} ≈ {console.log(quote)}
+                {quote
+                  ? formatBalance(
+                      Number(
+                        formatUnits(BigInt(quote.buyAmount), buyToken.decimals),
+                      ) /
+                        Number(
+                          formatUnits(
+                            BigInt(quote.sellAmount),
+                            sellToken.decimals,
+                          ),
+                        ),
+                    )
+                  : "0.0"}{" "}
                 {buyToken.symbol}
               </span>
             </div>
-            <div className="flex items-center space-x-2 p-4 bg-stone-50 rounded-xl">
-              <div className="flex items-center space-x-2 bg-white px-3 py-2 rounded-lg border">
+            <div className="flex items-center space-x-2 px-2 py-4 bg-stone-50 rounded-xl">
+              <div className="flex items-center space-x-2 bg-white pl-1 pr-3 py-1 h-9 rounded-lg border">
                 <img
                   src={buyToken.image}
                   width={24}
@@ -394,12 +407,12 @@ export default function Swap({ setTransactionState }: SwapProps) {
                   className="w-6 h-6 rounded-full"
                   alt={`${buyToken.symbol} logo`}
                 />
-                <span className="font-medium">{buyToken.symbol}</span>
+                <span className="text-sm font-medium">{buyToken.symbol}</span>
               </div>
               <Input
                 type="text"
                 value={buyAmount}
-                className="flex-1 bg-transparent text-right text-xl font-medium"
+                className="flex-1 bg-white text-right text-xl font-medium"
                 placeholder="0.0"
                 readOnly
               />
@@ -408,14 +421,14 @@ export default function Swap({ setTransactionState }: SwapProps) {
 
           {/* Error Messages */}
           {fetchPriceError.length > 0 && (
-            <div className="text-red-500 text-sm">
+            <div className="text-rose-600 text-sm">
               {fetchPriceError.map((error, index) => (
                 <div key={`priceError-${index}`}>{error}</div>
               ))}
             </div>
           )}
           {error && (
-            <div className="text-red-500 text-sm">
+            <div className="text-rose-600 text-sm">
               Error: {(error as BaseError).shortMessage || error.message}
             </div>
           )}

@@ -226,9 +226,10 @@ export default function Frame() {
 
           {/* Bottom Navigation */}
           <TabsList
-            className="fixed bottom-0 left-0 right-0 grid grid-cols-2 gap-4 bg-white h-16 border-t shadow-lg max-w-2xl mx-auto z-50 rounded-none px-2"
+            className="fixed bottom-0 left-0 right-0 grid grid-cols-2 gap-4 bg-white h-16 border-t shadow-lg max-w-2xl mx-auto z-50 rounded-none px-4"
             style={{
               marginBottom: 0,
+              paddingBottom: `${context?.client?.safeAreaInsets?.bottom || 0}px`,
             }}
           >
             <TabsTrigger
@@ -299,8 +300,8 @@ export default function Frame() {
             transition={{ duration: 0.2 }}
             className="flex flex-col items-center p-6 text-center"
           >
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <AlertTriangle className="w-8 h-8 text-red-500" />
+            <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-4">
+              <AlertTriangle className="w-8 h-8 text-rose-600" />
             </div>
             <h3 className="text-xl font-medium mb-2">Transaction Failed</h3>
             <p className="text-stone-600 mb-6">Please try again</p>
