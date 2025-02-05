@@ -20,10 +20,7 @@ export default async function Image() {
     (
       <div tw="h-full w-full flex flex-col justify-center items-center relative bg-[#fafaf9]">
         <div tw="flex items-center gap-2">
-          <RiSwapBoxLine
-            tw="w-16 h-16 mr-2 mt-px"
-            style={{ color: "#022c22" }}
-          />
+          <RiSwapBoxLine className="w-16 h-16 mr-2 mt-px" color="#022c22" />
           <h1 tw="text-6xl font-black text-[#022c22]">Native Swap</h1>
         </div>
       </div>
