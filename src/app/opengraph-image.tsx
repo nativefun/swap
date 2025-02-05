@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { RiSwapBoxLine } from "react-icons/ri";
 
 export const alt = "Native Swap";
 export const size = {
@@ -18,7 +19,10 @@ export default async function Image() {
   return new ImageResponse(
     (
       <div tw="h-full w-full flex flex-col justify-center items-center relative bg-[#fafaf9]">
-        <h1 tw="text-6xl font-bold text-[#059669]">Native Swap</h1>
+        <div className="flex items-center">
+          <RiSwapBoxLine className="w-10 h-10" />
+          <h1 tw="text-6xl font-bold text-[#022c22]">Native Swap</h1>
+        </div>
       </div>
     ),
     {
