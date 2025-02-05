@@ -246,7 +246,7 @@ export default function User() {
                     ? ""
                     : " " + nativeBalance?.symbol || "NATIVE"}
                 </div>
-                {nativeBalance?.usd_value > 0 && (
+                {/*{nativeBalance?.usd_value && nativeBalance?.usd_value > 0 && (
                   <div className="text-sm text-stone-500">
                     ${Number(nativeBalance.usd_value).toFixed(2)}
                     {nativeBalance.usd_price_24hr_percent_change && (
@@ -263,7 +263,7 @@ export default function User() {
                       </span>
                     )}
                   </div>
-                )}
+                )}*/}
               </div>
 
               <button

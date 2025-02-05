@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 
 const alchemy = new Alchemy({
   apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
-  network: process.env.NEXT_PUBLIC_NETWORK_ID,
+  network: Network.BASE_MAINNET,
 });
 
 export type TokenBalance = {
@@ -79,12 +79,13 @@ export function useTokenBalance(
           tokenAddress,
         ]);
         const metadata = await alchemy.core.getTokenMetadata(tokenAddress);
-        console.log(balance);
 
         if (balance.tokenBalances[0]) {
           const rawBalance = balance.tokenBalances[0].tokenBalance;
           const balance_formatted = rawBalance
-            ? (Number(rawBalance) / Math.pow(10, metadata.decimals)).toString()
+            ? (
+                Number(rawBalance) / Math.pow(10, metadata.decimals || 18)
+              ).toString()
             : "0";
 
           setBalance({
@@ -93,7 +94,7 @@ export function useTokenBalance(
             name: metadata.name || "",
             logo: metadata.logo || "",
             thumbnail: metadata.logo || "", // alchemy only provides one logo
-            decimals: metadata.decimals,
+            decimals: metadata.decimals || 18,
             balance: rawBalance || "0",
             balance_formatted,
             usd_price: 0, // would need separate price api

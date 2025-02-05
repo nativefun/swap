@@ -398,7 +398,9 @@ export default function Swap({ setTransactionState }: SwapProps) {
               <span>You receive</span>
               <span>
                 1 {sellToken.symbol} ≈{" "}
-                {quote && quote.buyAmount > 0 && quote.sellAmount > 0
+                {quote &&
+                Number(quote.buyAmount) > 0 &&
+                Number(quote.sellAmount) > 0
                   ? formatBalance(
                       Number(
                         formatUnits(BigInt(quote.buyAmount), buyToken.decimals),
@@ -495,7 +497,7 @@ export default function Swap({ setTransactionState }: SwapProps) {
           </button>
 
           <div className="h-4 flex items-center justify-center text-xs text-stone-500 text-center">
-            {quote && quote.minBuyAmount > 0
+            {quote && Number(quote.minBuyAmount) > 0
               ? `Minimum received:${" "} ${formatBalance(
                   formatUnits(BigInt(quote.minBuyAmount), buyToken.decimals),
                 )} ${buyToken.symbol}`
