@@ -12,16 +12,19 @@ export const size = {
 export const contentType = "image/png";
 
 export default async function Image() {
-  const satoshiBold = readFileSync(
-    join(process.cwd(), "public/fonts/satoshi/Satoshi-Bold.ttf"),
+  const satoshiBlack = readFileSync(
+    join(process.cwd(), "public/fonts/satoshi/Satoshi-Black.ttf"),
   );
 
   return new ImageResponse(
     (
       <div tw="h-full w-full flex flex-col justify-center items-center relative bg-[#fafaf9]">
-        <div className="flex items-center">
-          <RiSwapBoxLine className="w-10 h-10" />
-          <h1 tw="text-6xl font-bold text-[#022c22]">Native Swap</h1>
+        <div tw="flex items-center gap-2">
+          <RiSwapBoxLine
+            tw="w-16 h-16 mr-2 mt-px"
+            style={{ color: "#022c22" }}
+          />
+          <h1 tw="text-6xl font-black text-[#022c22]">Native Swap</h1>
         </div>
       </div>
     ),
@@ -30,7 +33,7 @@ export default async function Image() {
       fonts: [
         {
           name: "Satoshi",
-          data: satoshiBold,
+          data: satoshiBlack,
           weight: 700,
           style: "normal",
         },
