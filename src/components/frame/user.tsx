@@ -15,7 +15,8 @@ import { useAccount, useDisconnect, useConnect } from "wagmi";
 import { useTokenBalance } from "@/lib/hooks/useTokenBalance";
 import sdk from "@farcaster/frame-sdk";
 import { truncateAddress } from "@/lib/truncateAddress";
-import { FaArrowRight } from "react-icons/fa6";
+import { FaArrowRight, FaHouse } from "react-icons/fa6";
+import { PiHouseSimpleBold } from "react-icons/pi";
 import { Menu, LogOut, Wallet, ExternalLink } from "lucide-react";
 import {
   getLatestAnnouncements,
@@ -54,7 +55,7 @@ const AnnouncementItem = ({
   castUrl?: string;
 }) => (
   <div className="py-2">
-    <div className="flex justify-between items-start">
+    <div className="flex justify-between items-center">
       <h3 className="font-bold text-lg">{title}</h3>
       {castUrl && (
         <button
@@ -73,7 +74,7 @@ const AnnouncementItem = ({
       )}
     </div>
     <p className="text-stone-600 mt-2 line-clamp-2">{text}</p>
-    <div className="mt-3 border-b border-stone-200" />
+    <div className="mt-4 border-b border-stone-200" />
   </div>
 );
 
@@ -180,7 +181,10 @@ export default function User() {
   }
 
   const formattedNativeBalance = nativeBalance?.balance_formatted
-    ? Number(nativeBalance.balance_formatted).toFixed(4)
+    ? Number(nativeBalance.balance_formatted).toLocaleString(undefined, {
+        minimumFractionDigits: 4,
+        maximumFractionDigits: 4,
+      })
     : "0.0000";
 
   return (
@@ -222,7 +226,7 @@ export default function User() {
                   <img
                     src={
                       nativeBalance?.logo ||
-                      "https://logo.moralis.io/0x2105_0x20dd04c17afd5c9a8b3f2cdacaa8ee7907385bef_0bbcd8d5a1c676e6316497129af436fd.png"
+                      "https://www.native.fun/images/native_logo_fill.png"
                     }
                     width={16}
                     height={16}
@@ -231,10 +235,18 @@ export default function User() {
                   />
                   {nativeBalance?.symbol || "NATIVE"}
                 </span>
-                <div className="text-xl text-stone-700 font-bold">
-                  {formattedNativeBalance} {nativeBalance?.symbol || "NATIVE"}
+                <div className="flex items-center gap-0.5 text-xl text-stone-700 font-bold">
+                  {nativeBalance?.symbol === "NATIVE" ? (
+                    <PiHouseSimpleBold className="inline-block mt-0.5 h-4 w-4" />
+                  ) : (
+                    ""
+                  )}
+                  {formattedNativeBalance}
+                  {nativeBalance?.symbol === "NATIVE"
+                    ? ""
+                    : " " + nativeBalance?.symbol || "NATIVE"}
                 </div>
-                {nativeBalance?.usd_value && (
+                {nativeBalance?.usd_value > 0 && (
                   <div className="text-sm text-stone-500">
                     ${Number(nativeBalance.usd_value).toFixed(2)}
                     {nativeBalance.usd_price_24hr_percent_change && (
@@ -289,7 +301,7 @@ export default function User() {
           <div className="pb-4 px-4">
             <div className="space-y-2">
               {announcements.map((announcement, index) => (
-                <div key={announcement.id}>
+                <div key={`announcement-${index}`}>
                   <AnnouncementItem
                     title={announcement.title}
                     text={announcement.text}

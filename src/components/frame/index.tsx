@@ -13,8 +13,11 @@ import { useEffect, useState, createContext } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { User, Check, AlertTriangle, Loader2 } from "lucide-react";
 import { FaHome } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
+import { LuExternalLink } from "react-icons/lu";
 import { RiSwapBoxLine } from "react-icons/ri";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import sdk from "@farcaster/frame-sdk";
@@ -143,8 +146,8 @@ export default function Frame() {
             body: JSON.stringify({
               fid: context.user.fid,
               notificationId: `welcome:${context.user.fid}:${Date.now()}`, // Unique ID per welcome
-              title: "Welcome to Native Swap! 👋",
-              body: "Thanks for adding Native Swap. You will receive notifications for successful swaps and announcements.",
+              title: "Welcome home, neighbor! 🏡",
+              body: "Thanks for adding Native Swap! You'll receive notifications for announcements and swaps.",
               priority: "high", // Mark as high priority notification
             }),
           });
@@ -200,7 +203,7 @@ export default function Frame() {
             }}
           >
             <AnimatePresence mode="wait">
-              <TabsContent value="user" className="m-0 h-full">
+              <TabsContent key="user" value="user" className="m-0 h-full">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -211,7 +214,7 @@ export default function Frame() {
                 </motion.div>
               </TabsContent>
 
-              <TabsContent value="swap" className="m-0 h-full">
+              <TabsContent key="swap" value="swap" className="m-0 h-full">
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -255,7 +258,10 @@ export default function Frame() {
         open={transactionState === "success"}
         onOpenChange={resetTransaction}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md w-96 rounded-xl mx-auto">
+          <VisuallyHidden>
+            <DialogTitle>Transaction Successful</DialogTitle>
+          </VisuallyHidden>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -263,25 +269,45 @@ export default function Frame() {
             transition={{ duration: 0.2 }}
             className="flex flex-col items-center p-6 text-center"
           >
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <Check className="w-8 h-8 text-green-500" />
+            <div className="flex items-center justify-center gap-2 font-bold">
+              <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-emerald-500" />
+              </div>
+              <h3 className="uppercase font-mono text-sm">
+                Transaction Successful
+              </h3>
             </div>
-            <h3 className="text-xl font-medium mb-2">Transaction Successful</h3>
-            <p className="text-stone-600 mb-6">Successfully swapped tokens</p>
+            <p className="text-stone-600 my-4">Your swap was successful!</p>
             <div className="space-y-3 w-full">
-              <Button
-                className="w-full"
+              <button
+                className={`px-3 py-1 text-xs font-mono uppercase transition-all duration-200 hover:-rotate-1 hover:scale-110 active:scale-95 border border-transparent hover:border-current rounded-xl`}
                 onClick={() => window.open("https://basescan.org", "_blank")}
               >
-                View Transaction
-              </Button>
-              <Button
+                <div className="flex items-center justify-center gap-1">
+                  View Transaction
+                  <LuExternalLink className="-mt-0.5 h-3 w-3" />
+                </div>
+              </button>
+              <button
+                className={`relative flex bg-stone-50 text-stone-600 font-mono uppercase text-xs rounded-lg items-center justify-center overflow-hidden gap-4 group h-8 px-6 duration-200 opacity-100 hover:scale-90 active:scale-90 active:shadow-inner shadow-md w-full`}
                 onClick={resetTransaction}
-                variant="outline"
-                className="w-full"
               >
-                Close
-              </Button>
+                <motion.div
+                  className="absolute left-0 flex h-8 rounded-l-lg"
+                  style={{
+                    width: `10%`,
+                    backgroundImage: `radial-gradient(circle, #a8a29e 1px, transparent 1px)`,
+                    backgroundSize: "4px 4px",
+                  }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `10%` }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                ></motion.div>
+                <div className="flex items-center gap-2">
+                  CLOSE
+                  <FaXmark />
+                </div>
+              </button>
             </div>
           </motion.div>
         </DialogContent>
@@ -292,7 +318,10 @@ export default function Frame() {
         open={transactionState === "error"}
         onOpenChange={resetTransaction}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md w-96 rounded-xl mx-auto">
+          <VisuallyHidden>
+            <DialogTitle>Transaction Failed</DialogTitle>
+          </VisuallyHidden>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -300,18 +329,37 @@ export default function Frame() {
             transition={{ duration: 0.2 }}
             className="flex flex-col items-center p-6 text-center"
           >
-            <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mb-4">
-              <AlertTriangle className="w-8 h-8 text-rose-600" />
+            <div className="flex items-center justify-center gap-2 font-bold">
+              <div className="w-8 h-8 bg-rose-100 rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-4 h-4 text-rose-500" />
+              </div>
+              <h3 className="uppercase font-mono text-sm">
+                Transaction Failed
+              </h3>
             </div>
-            <h3 className="text-xl font-medium mb-2">Transaction Failed</h3>
-            <p className="text-stone-600 mb-6">Please try again</p>
-            <Button
+            <p className="text-stone-600 my-4">
+              Oh no! Your swap wasn't successful. Please try again.
+            </p>
+            <button
+              className={`relative flex bg-stone-50 text-stone-600 font-mono uppercase text-xs rounded-lg items-center justify-center overflow-hidden gap-4 group h-8 px-6 duration-200 opacity-100 hover:scale-90 active:scale-90 active:shadow-inner shadow-md w-full`}
               onClick={resetTransaction}
-              variant="outline"
-              className="w-full"
             >
-              Close
-            </Button>
+              <motion.div
+                className="absolute left-0 flex h-8 rounded-l-lg"
+                style={{
+                  width: `10%`,
+                  backgroundImage: `radial-gradient(circle, #a8a29e 1px, transparent 1px)`,
+                  backgroundSize: "4px 4px",
+                }}
+                initial={{ width: 0 }}
+                animate={{ width: `10%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              ></motion.div>
+              <div className="flex items-center gap-2">
+                CLOSE
+                <FaXmark />
+              </div>
+            </button>
           </motion.div>
         </DialogContent>
       </Dialog>

@@ -422,7 +422,7 @@ You can access your local development server at [http://localhost:3000](http://l
 - Upstash Redis for caching
 - Farcaster Frame SDK
 - 0x Protocol for swaps
-- Moralis for token data
+- Alchemy for token data
 - Neynar for Farcaster data
 
 ### Environment Variables
@@ -435,7 +435,7 @@ UPSTASH_REDIS_REST_URL=your_redis_url
 UPSTASH_REDIS_REST_TOKEN=your_redis_token
 NEYNAR_API_KEY=your_neynar_key
 ZEROX_API_KEY=your_0x_key
-NEXT_PUBLIC_MORALIS_API_KEY=your_moralis_key
+NEXT_PUBLIC_ALCHEMY_KEY=your_alchemy_key
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_key
 ```
