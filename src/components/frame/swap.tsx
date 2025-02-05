@@ -368,14 +368,15 @@ export default function Swap({ setTransactionState }: SwapProps) {
 
           {/* Swap Direction Button */}
           <div className="flex justify-center py-2">
-            <Button
+            <div className="h-px bg-stone-200 w-36 my-2" />
+            {/*<Button
               variant="ghost"
               size="icon"
               onClick={handleSwapTokens}
               className="bg-white shadow-md rounded-full h-8 w-8 z-10 transition-all duration-200 hover:bg-emerald-600 hover:text-white font-bold rotate-90 active:duration-300 active:rotate-180"
             >
               <RiSwapBoxLine className="h-6 w-6" />
-            </Button>
+            </Button>*/}
           </div>
 
           {/* Output Token */}
