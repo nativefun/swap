@@ -236,15 +236,8 @@ export default function User() {
                   {nativeBalance?.symbol || "NATIVE"}
                 </span>
                 <div className="flex items-center gap-0.5 text-xl text-stone-700 font-bold">
-                  {nativeBalance?.symbol === "NATIVE" ? (
-                    <PiHouseSimpleBold className="inline-block mt-0.5 h-4 w-4" />
-                  ) : (
-                    ""
-                  )}
+                  <PiHouseSimpleBold className="inline-block mt-0.5 h-4 w-4" />
                   {formattedNativeBalance}
-                  {nativeBalance?.symbol === "NATIVE"
-                    ? ""
-                    : " " + nativeBalance?.symbol || "NATIVE"}
                 </div>
                 {/*{nativeBalance?.usd_value && nativeBalance?.usd_value > 0 && (
                   <div className="text-sm text-stone-500">
