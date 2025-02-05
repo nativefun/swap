@@ -19,8 +19,16 @@ export default async function Image() {
   return new ImageResponse(
     (
       <div tw="h-full w-full flex flex-col justify-center items-center relative bg-[#fafaf9]">
-        <div tw="flex items-center gap-2">
-          <RiSwapBoxLine className="w-16 h-16 mr-2 mt-px" color="#022c22" />
+        <div tw="flex items-center">
+          <RiSwapBoxLine
+            color="#022c22"
+            style={{
+              height: "60px",
+              marginRight: "8px",
+              marginTop: "1px",
+              width: "64px",
+            }}
+          />
           <h1 tw="text-6xl font-black text-[#022c22]">Native Swap</h1>
         </div>
       </div>
